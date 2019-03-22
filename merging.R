@@ -2,7 +2,7 @@ library(rvest)
 library(dplyr)
 library(stringr)
 
-setwd("C:\\Users\\Hermine\\Google Drive\\AUA Lessons\\Year3\\2 Semester\\Econometrics\\Project")
+setwd("C:\\Users\\Hermine\\Google Drive\\AUA Lessons\\Year3\\2 Semester\\Econometrics\\Project\\Analysis-of-Hotels-in-Yerevan")
 
 
 data_UNDP<-readxl::read_excel("ObjectData01302019_for_MongoDB.xlsx")
@@ -10,8 +10,7 @@ data_UNDP<-filter(data_UNDP, city %in% "Yerevan" & objectType %in% "Hotel" )
 data_UNDP<-data_UNDP[!duplicated(data_UNDP$name),]
 
 url<-paste("https://www.tripadvisor.com/Hotels-g293932-oa", seq(0, 510, by=30), "-Yerevan-Hotels.html", sep="")
-url[5]
-otel_name<-c()
+hotel_name<-c()
 first_provider<-c()
 first_price<-c()
 review_count<-c()
@@ -36,7 +35,7 @@ for (i in url) {
   
 }
 
-rm(i, lab, link, name, price, provider, review, url)
+rm(i, lab, name, price, provider, review, url)
 
 # separating the details (labels)
 free_wifi<-str_extract_all(labels, "Free+\\s+Wifi", simplify = T)
@@ -57,7 +56,7 @@ data<-data[!duplicated(data$name),] #there are some duplicated hotels however th
 data$name<-as.character(data$name)
 
 merged_data<-merge(data, data_UNDP, by="name")
-
+#write.csv(merged_data, "merged_data.csv", row.names = F)
 ############# Data Cleaning ###############
 
 data[,5:11]<-apply(data[,5:11], 2, factor, labels = c("0", "1")) #turning the variables into dummies
