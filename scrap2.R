@@ -14,44 +14,58 @@ review_count<-c()
 labels<-c()
 links<-c()
 
-for (i in url[30:50]) {
+for (i in url) {
   html<-read_html(i)
   name<-html %>% html_nodes(css=".prominent") %>% html_text(trim=TRUE) %>% ifelse(. == "", NA, .) %>% replace(!nzchar(.), NA)
   hotel_name<-c(hotel_name, name)
   
   provider <- html %>% html_nodes(css=".provider") %>% html_text(trim=TRUE) %>% ifelse(. == "", NA, .) %>% replace(!nzchar(.), NA)
-  #provider<-ifelse(length(provider)==0, "Missing", provider)
   main_provider<-c(main_provider, provider)
   
   price <- html %>% html_nodes(css=".price-wrap .price") %>% html_text(trim=TRUE) %>% ifelse(. == "", NA, .) %>% replace(!nzchar(.), NA)
-  #price<-ifelse(length(price)==0, "Missing", price)
   main_price<-c(main_price, price)
   
   review <- html %>% html_nodes(css=".review_count") %>% html_text(trim=TRUE) %>% ifelse(. == "", NA, .) %>% replace(!nzchar(.), NA)
- #review<-ifelse(length(review)==0, "Missing", review)
   review_count<-c(review_count, review)
   
   lab <- html %>% html_nodes(css=".info-col") %>% html_text(trim=TRUE) %>% ifelse(. == "", NA, .) %>% replace(!nzchar(.), NA)
-  #review<-ifelse(length(lab)==0, "Missing", lab)
   labels<-c(labels, lab)
   
   link<-html %>% html_nodes(css="a") %>% html_attr("href")
-  #link<-ifelse(length(link)==0, "Missing", link)
   links<-c(links, link)
 }
 
 rm(i, lab, name, price, provider, review, url)
 
-i<-url[1]
+# separating the details (labels)
+free_wifi<-str_extract_all(labels, "Free+\\s+Wifi", simplify = T)
+breakfast_included<-str_extract_all(labels, "Breakfast+\\s+included", simplify = T)
+free_parking<-str_extract_all(labels, "Free+\\s+parking", simplify = T)
+pool<-str_extract_all(labels, "Pool", simplify = T)
+hotel_website<-str_extract_all(labels, "Visit+\\s+hotel+\\s+website", simplify = T)
+special_offer<-str_extract_all(labels, "Special+\\s+Offer", simplify = T)
+restaurant<-str_extract_all(labels, "Restaurant", simplify = T)
 
-hotel_name2<-c()
+data<-as.data.frame(cbind(hotel_name, main_provider, main_price, review_count, 
+                          free_wifi, breakfast_included, free_parking[,1], pool, hotel_website,
+                          special_offer, restaurant))
+colnames(data)<-c("name", "Provider", "Price", "Review_Count", "Free_Wifi", 
+                  "Breakfast_Included", "Free_Parking", "Swimming_Pool", "Hotel_Website",
+                  "Special_Offer", "Restaurant")
+data<-unique(data) #there were some hotels that were sponsored, and appeared in several pages. That is why I leave only unique rows.
+data<-data[!duplicated(data$name),] #there are some duplicated hotels however they appeared to have different links, because of having grammatical mistakes in the address of the hotel
+data$name<-as.character(data$name)
 
-for (i in url[30:50]) {
-  html<-read_html(i)
-  name2<-html %>% html_nodes(css=".price-wrap .price") %>% html_text(trim=TRUE) %>% ifelse(. == "", NA, .) %>% replace(!nzchar(.), NA)
-  hotel_name2<-c(hotel_name2, name2)
-}
+links<-unique(links)
+links<-links[!str_detect(links, "#REVIEWS")]
+links<-links[str_detect(links, "Hotel_Review")]
+links<-na.omit(links)
+links<-data.frame(links)
+links$duplicated_names<-str_extract_all(links$links, "Reviews-+[a-zA-Z0-9_]{1,}", simplify = T)
+links<-links[!duplicated(links$duplicated_names),]
 
+data<-data.frame(data, link=links$links)
+data$link<-paste("https://www.tripadvisor.com/", data$link, sep="")
+rownames(data)<-NULL
 
-
-str_extract_all(name, , simplify = T)
+#write.csv(data, "data_scraped_976_obs.csv", row.names = F)
