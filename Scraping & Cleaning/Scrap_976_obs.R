@@ -68,4 +68,4 @@ data<-data.frame(data, link=links$links)
 data$link<-paste("https://www.tripadvisor.com/", data$link, sep="")
 rownames(data)<-NULL
 
-#write.csv(data, "data_scraped_976_obs.csv", row.names = F)
+#write.csv(data, "Data/data_scraped_976_obs.csv", row.names = F)

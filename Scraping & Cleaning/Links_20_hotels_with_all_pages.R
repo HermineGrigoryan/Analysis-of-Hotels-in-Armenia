@@ -60,4 +60,4 @@ all_links<-data.frame(all_links)
 colnames(all_links)<-"Link"
 rownames(all_links)<-NULL
 
-#write.csv(all_links, "Links_20_hotels_with_all_pages.csv", row.names = F)
+#write.csv(all_links, "Data/Links_20_hotels_with_all_pages.csv", row.names = F)
