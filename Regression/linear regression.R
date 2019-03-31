@@ -31,6 +31,8 @@ data %>%
 summary(data)
 
 ggplot()+geom_point(data=data, aes(y=Price_USD, x=Review_Count))+geom_smooth(method="lm")
-summary(lm(Price_USD~Review_Count, data = data))
+summary(lm(log(Price_USD)~Review_Count+Free_Wifi, data = data))
 
-
+mod<-lm(log(Price_USD)~Review_Count+Free_Wifi, data = data)
+pred<-predict(mod)
+hist(pred-na.omit(data$Price_USD), breaks=15, plot=T)
