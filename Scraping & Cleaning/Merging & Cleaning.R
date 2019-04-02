@@ -26,11 +26,12 @@ merged_data<-merge(data, data_UNDP, by=c("name", "link"))
 ###############################################################################
 ####################### Part 2 ################################################
 ###############################################################################
+scoreDistribution<-str_replace_all(merged_data$scoreDistribution, "\\]", "\\,")
+scoreDistribution<-data.frame(str_extract_all(scoreDistribution, "[0-9],", simplify=T))
+colnames(scoreDistribution)<-c("Excellent", "Good", "Average", "Poor", "Terrible")
+scoreDistribution<-data.frame(apply(scoreDistribution, 2, str_remove_all, "\\,"))
+scoreDistribution<-apply(scoreDistribution, 2, as.numeric)
+scoreDistribution[is.na(scoreDistribution)]<-0
 
-head(merged_data$scoreDistribution)
-no_reviews<-str_extract_all(merged_data$scoreDistribution, "\\[]", simplify = T)
-excellent<-str_extract_all(merged_data$scoreDistribution, "\\[+[0-9]{1,}", simplify = T)
-good<-str_extract_all(merged_data$scoreDistribution, "\\[+[0-9]{1,}+\\,+\\s+[0-9]{1,}", simplify = T)
-average<-str_extract_all(merged_data$scoreDistribution, "\\[+[0-9]{1,}+\\,+\\s+[0-9]{1,}+\\,+\\s+[0-9]{1,}", simplify = T)
-poor<-str_extract_all(merged_data$scoreDistribution, "\\[+[0-9]{1,}+\\,+\\s+[0-9]{1,}+\\,+\\s+[0-9]{1,}+\\,+\\s+[0-9]{1,}", simplify = T)
-terrible<-str_extract_all(merged_data$scoreDistribution, "\\[+[0-9]{1,}+\\,+\\s+[0-9]{1,}+\\,+\\s+[0-9]{1,}+\\,+\\s+[0-9]{1,}+\\,+\\s+[0-9]{1,}", simplify = T)
+merged_data<-data.frame(merged_data, scoreDistribution)
+
