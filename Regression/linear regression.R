@@ -3,7 +3,7 @@ library(ggplot2)
 
 setwd("C:\\Users\\Hermine\\Google Drive\\AUA Lessons\\Year3\\2 Semester\\Econometrics\\Project\\Analysis-of-Hotels-in-Yerevan")
 
-data<-read.csv("merged_data.csv")
+data<-read.csv("Data\\Trip_Advisor_Armenian_Hotels.csv")
 
 SaryanPalette<-function(picture_name, number){
   palette<-getSaryanPallete(picture_name)
@@ -36,3 +36,6 @@ summary(lm(log(Price_USD)~Review_Count+Free_Wifi, data = data))
 mod<-lm(log(Price_USD)~Review_Count+Free_Wifi, data = data)
 pred<-predict(mod)
 hist(pred-na.omit(data$Price_USD), breaks=15, plot=T)
+
+hist(log(data$Price_USD))
+summary(lm(Price_USD~Review_Count, data=data))

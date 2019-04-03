@@ -1,0 +1,60 @@
+---
+title: "Descriptive Analysis"
+author: "Hermine Grigoryan"
+date: "April 3, 2019"
+output: word_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r, include=F}
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+library(viridis)
+library(scales)
+library("ggsci")
+data<-read.csv("Data//Trip_Advisor_Armenian_Hotels.csv")
+```
+
+```{r}
+a<-data %>%
+  group_by(City) %>%
+  mutate(Count=n()) %>%
+  arrange(desc(Count)) #%>%
+  #head(10) %>%
+  ggplot(aes(x=reorder(City, Count), y=Count))+geom_bar(stat="identity")+
+  coord_flip()
+tema+
+  scale_color_manual(values = SaryanPalette("armenia", 10))+
+  scale_y_continuous(breaks=number_ticks(10))+
+  labs(title="Top 10 Hotels with the Highest Price", y="Price (USD)", x="Hotel")
+
+ggplot(data)+geom_bar(aes(reorder(City)))+
+  coord_flip()
+
+p +
+
+ggplot(data=data)+geom_bar(aes(City)))+
+  coord_flip()
+
+table(data$City)
+table(data$State)
+
+
+data %>%
+  arrange(desc(Review_Count)) %>%
+  head(10) %>%
+  ggplot(aes(x=reorder(Name, Review_Count), y=Review_Count))+
+  geom_bar(stat="identity", aes(fill=Name), alpha=0.8)+
+  coord_flip()+
+  scale_y_continuous(breaks=pretty_breaks(20))+
+  labs(title="Top 10 Hotels with Most Number of Reviews", y="Number of Reviews", x="Hotel")+ 
+  scale_fill_simpsons()
+```
+
