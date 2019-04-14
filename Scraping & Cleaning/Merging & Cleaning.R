@@ -27,7 +27,7 @@ merged_data<-merge(data, data_UNDP, by=c("name", "link"))
 ####################### Part 2 ################################################
 ###############################################################################
 scoreDistribution<-str_replace_all(merged_data$scoreDistribution, "\\]", "\\,")
-scoreDistribution<-data.frame(str_extract_all(scoreDistribution, "[0-9],", simplify=T))
+scoreDistribution<-data.frame(str_extract_all(scoreDistribution, "[0-9]{1,},", simplify=T))
 colnames(scoreDistribution)<-c("Excellent", "Good", "Average", "Poor", "Terrible")
 scoreDistribution<-data.frame(apply(scoreDistribution, 2, str_remove_all, "\\,"))
 scoreDistribution<-apply(scoreDistribution, 2, as.numeric)
