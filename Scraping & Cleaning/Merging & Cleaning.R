@@ -49,6 +49,16 @@ final_data<-data.frame(Name=dat$name, Link=dat$link, Price_AMD=dat$Price_AMD, Pr
                        Restaurant=dat$Restaurant)
 
 final_data$Certificate<-ifelse(final_data$Certificate==FALSE, 0, 1)
+
+final_data$Other_Offers<-ifelse(final_data$Breakfast_Included==1, 1, 0)
+final_data$Other_Offers<-ifelse(final_data$Swimming_Pool==1, 1, final_data$Other_Offers)
+final_data$Other_Offers<-ifelse(final_data$Hotel_Website==1, 1, final_data$Other_Offers)
+final_data$Other_Offers<-ifelse(final_data$Restaurant==1, 1, final_data$Other_Offers)
+final_data$Other_Offers<-ifelse(final_data$Certificate==1, 1, final_data$Other_Offers)
+
+final_data$Average_Score<-(1*final_data$Terrible_Rating+2*final_data$Poor_Rating+3*final_data$Average_Rating+4*final_data$Good_Rating+5*final_data$Excellent_Rating)/(final_data$Terrible_Rating+final_data$Poor_Rating+final_data$Average_Rating+final_data$Good_Rating+final_data$Excellent_Rating)
+final_data[is.nan(final_data$Average_Score),"Average_Score"] <- 0
+
 str(final_data)
 
 #write.csv(final_data, "Trip_Advisor_Armenian_Hotels.csv", row.names = F)
