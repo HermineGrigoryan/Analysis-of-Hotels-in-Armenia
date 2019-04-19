@@ -1,5 +1,6 @@
 library(dplyr)
 library(stringr)
+library(forcats) 
 
 data<-read.csv("Data/data_scraped_976_obs.csv", stringsAsFactors = F)
 data_UNDP<-readxl::read_excel("Data/ObjectData18.xlsx")
@@ -59,6 +60,18 @@ final_data$Other_Offers<-ifelse(final_data$Certificate==1, 1, final_data$Other_O
 final_data$Average_Score<-(1*final_data$Terrible_Rating+2*final_data$Poor_Rating+3*final_data$Average_Rating+4*final_data$Good_Rating+5*final_data$Excellent_Rating)/(final_data$Terrible_Rating+final_data$Poor_Rating+final_data$Average_Rating+final_data$Good_Rating+final_data$Excellent_Rating)
 final_data[is.nan(final_data$Average_Score),"Average_Score"] <- 0
 
+final_data$Yerevan<-ifelse(final_data$State=="Yerevan", 1, 0)
+
 str(final_data)
+
+##########################################################################
+########################## Ranking Category ##############################
+##########################################################################
+final_data$Ranking_Category<-fct_explicit_na(final_data$Ranking_Category, na_level = "Other")
+
+final_data$B_and_B<-ifelse(str_extract_all(final_data$Ranking_Category, "B&B", simplify = T)=="B&B", 1, 0)
+final_data$Specialty_Lodging<-ifelse(str_extract_all(final_data$Ranking_Category, "Specialty Lodging", simplify = T)=="Specialty Lodging", 1, 0)
+final_data$Hotels<-ifelse(str_extract_all(final_data$Ranking_Category, "Hotels", simplify = T)=="Hotels", 1, 0)
+final_data$Other_Cat<-ifelse(str_extract_all(final_data$Ranking_Category, "Other", simplify = T)=="Other", 1, 0)
 
 #write.csv(final_data, "Trip_Advisor_Armenian_Hotels.csv", row.names = F)
