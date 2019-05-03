@@ -73,5 +73,7 @@ final_data$B_and_B<-ifelse(str_extract_all(final_data$Ranking_Category, "B&B", s
 final_data$Specialty_Lodging<-ifelse(str_extract_all(final_data$Ranking_Category, "Specialty Lodging", simplify = T)=="Specialty Lodging", 1, 0)
 final_data$Hotels<-ifelse(str_extract_all(final_data$Ranking_Category, "Hotels", simplify = T)=="Hotels", 1, 0)
 final_data$Other_Cat<-ifelse(str_extract_all(final_data$Ranking_Category, "Other", simplify = T)=="Other", 1, 0)
+final_data_na<-final_data[!is.na(final_data$Price_USD),]
 
 #write.csv(final_data, "Trip_Advisor_Armenian_Hotels.csv", row.names = F)
+#write.csv(final_data_na, "Trip_Advisor_Armenian_Hotels_without_na.csv", row.names = F)

@@ -1,0 +1,170 @@
+---
+title: "Descriptive plots"
+author: "Hermine Grigoryan"
+date: "April 24, 2019"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, dpi=300, fig.width = 10, fig.height = 5)
+```
+
+```{r, include=F}
+setwd("C:\\Users\\HP\\Desktop\\Hermine\\Econometrics")
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+library(stringr)
+library(scales)
+library(lemon)
+library(table1)
+
+colors<-c("#0E6251", "#148F77", "#58D68D", "#154360", "#2874A6", "#5DADE2", "#AED6F1", "#A9DFBF")
+
+data<-read.csv("Data\\Trip_Advisor_Armenian_Hotels_without_na.csv")
+data<-filter(data, Average_Score>0)
+data<-filter(data, Other_Cat==0)
+
+data$Score<-factor(ifelse(data$Average_Score<=2, "Low", 
+                  ifelse(data$Average_Score>2 & data$Average_Score<4, "Medium", "High")))
+
+data$Category<-factor(ifelse(str_extract_all(data$Ranking_Category, "B&B", simplify = T)=="B&B", "B&B", 
+                      ifelse(str_extract_all(data$Ranking_Category, "Specialty Lodging", simplify = T)=="Specialty Lodging", 
+                             "Specialty Lodging", "Hotels")))
+
+data$Free_Parking<-factor(data$Free_Parking)
+data$Free_WiFi<-factor(data$Free_WiFi)
+```
+
+```{r}
+
+#png(filename = "Plots//1_most_expensive.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+data %>%
+  arrange(desc(Price_USD)) %>%
+  head(10) %>%
+  ggplot(aes(x=reorder(Name, Price_USD), y=Price_USD))+
+  geom_bar(stat="identity", alpha=0.9, aes(fill=City))+
+  scale_fill_manual(values = colors)+
+  scale_y_continuous(breaks = pretty_breaks(10))+
+  labs(title="Top 10 Hotels with the Highest Price", y="Price (USD)", x="Hotel")+
+  coord_flip()+theme_bw()
+#dev.off()
+
+#png(filename = "Plots//2_most_review_count.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+data %>%
+  arrange(desc(Review_Count)) %>%
+  head(10) %>%
+  ggplot(aes(x=reorder(Name, Review_Count), y=Review_Count))+
+  geom_bar(stat="identity", alpha=0.8, aes(fill=City))+
+  scale_fill_manual(values = colors[6])+
+  scale_y_continuous(breaks = pretty_breaks(10))+
+  labs(title="Top 10 Hotels with Most Number of Reviews", y="Number of Reviews", x="Hotel")+
+  coord_flip()+theme_bw()
+#dev.off()
+
+
+#png(filename = "Plots//3_review_count_vs_price.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+ggplot(data, aes(Review_Count, Price_USD))+geom_point(color=colors[5], size=2, alpha=0.6)+
+  scale_x_continuous(breaks = pretty_breaks(10))+
+  scale_y_continuous(breaks = pretty_breaks(10))+
+  labs(title="Relationship Between Price and Number of Reviews", y="Price (USD)",
+       x="Number of Reviews")+theme_bw()
+#dev.off()
+
+
+#png(filename = "Plots//4_price_per_state_boxplot.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+ggplot(data, aes(x=State, y=Price_USD))+geom_boxplot(aes(color=State), size=1.2)+
+  labs(title="Distribution of Price per Each State",
+       x="State", y="Price (USD)")+
+  scale_color_manual(guide=F, values = colors)+
+  scale_y_continuous(breaks = pretty_breaks(10))+
+  geom_text_repel(data=subset(data, Price_USD>200), aes(label=data[data$Price_USD>200, "Name"]))+
+  coord_flip()+theme_bw()
+#dev.off()
+
+
+#png(filename = "Plots//5_price_per_category.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+ggplot(data, aes(x=Price_USD))+geom_histogram(bins=50, color=colors[5], fill=colors[7])+
+  labs(title="Distribution of Price per Category", x="Price (USD)", y="Frequency")+
+  scale_x_continuous(breaks = pretty_breaks(8))+
+  scale_y_continuous(breaks = pretty_breaks(10))+theme_bw()+
+  facet_rep_wrap(~Category, repeat.tick.labels=T)
+#dev.off()
+
+
+#png(filename = "Plots//6_dist_price.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+ggplot(data, aes(x=log(Price_USD)))+geom_histogram(bins=50, color=colors[5], fill=colors[7])+
+  labs(title="Distribution of Price", x="Logarithm of Price (USD)", y="Frequency")+
+  scale_x_continuous(breaks = pretty_breaks(10))+
+  scale_y_continuous(breaks = pretty_breaks(10))+theme_bw()
+#dev.off()
+
+
+#png(filename = "Plots//7_photos_vs_reviews.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+ggplot(data, aes(y=Review_Count, x=Photos_Count))+geom_point(aes(color=State), size=4, alpha=0.8)+
+  scale_x_continuous(breaks = pretty_breaks(10))+
+  scale_y_continuous(breaks = pretty_breaks(10))+
+  scale_color_manual(values = colors)+
+  geom_text_repel(data=subset(data, Photos_Count>300), aes(label=data[data$Photos_Count>300, "Name"]))+
+  labs(title="Relationship Between Number of Photos and Number of Reviews", x="Number of Photos",
+       y="Number of Reviews")+theme_bw()
+#dev.off()
+
+
+#png(filename = "Plots//8_score_vs_reviews_state.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+ggplot(data, aes(x=Review_Count, y=Average_Score))+geom_point(aes(color=State), size=3, alpha=0.9)+
+  scale_x_continuous(breaks = pretty_breaks(10))+
+  scale_y_continuous(breaks = pretty_breaks(10))+
+  scale_color_manual(values = colors)+
+  geom_text_repel(data=subset(data, Review_Count>400), aes(label=data[data$Review_Count>400, "Name"]))+
+  labs(title="Relationship Between Average Score and Number of Reviews", y="Average Score",
+       x="Number of Reviews")+theme_bw()
+#dev.off()
+
+
+#png(filename = "Plots//9_score_vs_reviews_category.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+ggplot(data, aes(x=Review_Count, y=Average_Score))+geom_point(aes(color=Category), size=3, alpha=0.7)+
+  scale_x_continuous(breaks = pretty_breaks(10))+
+  scale_y_continuous(breaks = pretty_breaks(10))+
+  scale_color_manual(values = c(colors[4], "#7D3C98", colors[6]))+
+  geom_text_repel(data=subset(data, Review_Count>400), aes(label=data[data$Review_Count>400, "Name"]))+
+  labs(title="Relationship Between Average Score and Number of Reviews", y="Average Score",
+       x="Number of Reviews")+theme_bw()
+#dev.off()
+
+
+#png(filename = "Plots//10_avg_score_per_category.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+ggplot(data, aes(x=Average_Score))+geom_histogram(bins=50, color=colors[5], fill=colors[7])+
+  labs(title="Distribution of Average Score per Category", x="Average Score", y="Frequency")+
+  scale_x_continuous(breaks = pretty_breaks(8))+
+  scale_y_continuous(breaks = pretty_breaks(10))+theme_bw()+
+  facet_rep_wrap(~Category, repeat.tick.labels=T)
+#dev.off()
+
+
+#png(filename = "Plots//11_price_per_score.png", width=12+2/3, height=6+2/3, units="in", res=1200)
+ggplot(data, aes(x=Price_USD))+geom_histogram(bins=50, color=colors[5], fill=colors[7])+
+  labs(title="Distribution of Price per Score Category", x="Price (USD)", y="Frequency")+
+  scale_x_continuous(breaks = pretty_breaks(8))+
+  scale_y_continuous(breaks = pretty_breaks(10))+theme_bw()+
+  facet_rep_wrap(~Score, repeat.tick.labels=T)
+#dev.off()
+```
+
+```{r, include=F}
+label(data$Price_USD) <- "Price (USD)"
+label(data$Review_Count) <- "Number of Reviews"
+label(data$Photos_Count) <- "Number of Photos"
+label(data$Average_Score) <- "Average Score"
+label(data$Free_WiFi) <- "Free WiFi"
+label(data$Free_Parking) <- "Free Parking"
+
+table1(~Price_USD+Review_Count+Photos_Count+Average_Score+State+Category+Free_WiFi+Free_Parking | Score, data = data)
+```
+
