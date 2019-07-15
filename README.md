@@ -1,3 +1,5 @@
+   ## How online ratings and reviews affect hotel prices in Armenia?
+   
    The main objective of this research is to analyze how online ratings and reviews affect the prices of hotels in Armenia. Data from TripAdvisor, an open online community, on 462 Armenian hotels were scraped to use for the analysis.
   
   The research paper can be found in the following file: `Hermine Grigoryan - Empirical Project.pdf`
